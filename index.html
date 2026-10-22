@@ -1141,6 +1141,12 @@
     ⚠️ CRITICAL ALERT: <span id="banner-text">EMERGENCY SOS SIGNAL TRANSMITTED</span> ⚠️
   </div>
 
+  <!-- Desktop / Mobile Notification Request Banner -->
+  <div id="perm-request-banner" style="display: none; background: rgba(6, 182, 212, 0.18); border-bottom: 1px solid var(--neon-cyan); padding: 9px 20px; text-align: center; font-size: 0.85rem; color: #fff;">
+    <span>🔔 <strong>SYSTEM NOTICE:</strong> Click to allow emergency alerts in your Laptop & Mobile Notification message box:</span>
+    <button onclick="requestOSNotificationPermission()" class="btn-action btn-success" style="display: inline-block; width: auto; margin-left: 12px; padding: 4px 12px; font-size: 0.75rem;">ENABLE MESSAGE BOX ALERTS</button>
+  </div>
+
   <!-- Header & Industrial Telemetry Console -->
   <header>
     <div class="brand-group">
@@ -1608,6 +1614,64 @@
       <div style="padding: 12px 20px; border-top: 1px solid var(--border-subtle); display: flex; justify-content: flex-end; gap: 10px;">
         <button class="btn-action btn-success" onclick="saveDispatchSettings()">SAVE DISPATCH SETTINGS</button>
         <button class="btn-action" onclick="closeDispatchModal()">CLOSE</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Realtime Emergency Pop-up Message Box (Laptop Screen & Mobile) -->
+  <div class="modal-overlay" id="emergency-message-box-modal" style="z-index: 3500;">
+    <div class="modal-card" style="max-width: 580px; border: 2px solid var(--neon-crimson); box-shadow: 0 0 50px rgba(239, 68, 68, 0.7);">
+      <div class="modal-header" style="background: rgba(239, 68, 68, 0.2); border-bottom: 2px solid var(--neon-crimson);">
+        <h3 class="copperplate" style="color: #fff; font-size: 1.15rem; display: flex; align-items: center; gap: 8px;">
+          <span>🚨</span> EMERGENCY DISPATCH MESSAGE BOX
+        </h3>
+        <button class="drawer-close" onclick="closeEmergencyMessageBox()">&times;</button>
+      </div>
+      <div class="modal-body" style="padding: 20px; font-family: var(--font-sans);">
+        <div style="background: rgba(239, 68, 68, 0.15); border-left: 4px solid var(--neon-crimson); padding: 12px; border-radius: 6px; margin-bottom: 14px;">
+          <h4 id="emb-title" class="copperplate" style="color: #f87171; font-size: 1.05rem; margin-bottom: 4px;">CRITICAL SAFETY HAZARD DETECTED</h4>
+          <p id="emb-details" style="font-size: 0.9rem; color: #fff;">Worker triggered emergency panic beacon.</p>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; font-family: var(--font-mono); font-size: 0.85rem;">
+          <div style="background: var(--bg-deep); padding: 8px; border-radius: 6px; border: 1px solid var(--border-subtle);">
+            <span style="color: var(--text-dim); font-size: 0.7rem;">GAS SENSOR:</span>
+            <div id="emb-gas" style="color: var(--neon-amber); font-weight: bold;">-- PPM</div>
+          </div>
+          <div style="background: var(--bg-deep); padding: 8px; border-radius: 6px; border: 1px solid var(--border-subtle);">
+            <span style="color: var(--text-dim); font-size: 0.7rem;">HEART RATE:</span>
+            <div id="emb-bpm" style="color: var(--neon-emerald); font-weight: bold;">-- BPM</div>
+          </div>
+          <div style="background: var(--bg-deep); padding: 8px; border-radius: 6px; border: 1px solid var(--border-subtle);">
+            <span style="color: var(--text-dim); font-size: 0.7rem;">BLOOD OXYGEN:</span>
+            <div id="emb-spo2" style="color: var(--neon-cyan); font-weight: bold;">-- %</div>
+          </div>
+          <div style="background: var(--bg-deep); padding: 8px; border-radius: 6px; border: 1px solid var(--border-subtle);">
+            <span style="color: var(--text-dim); font-size: 0.7rem;">GPS LOCATION:</span>
+            <div id="emb-gps" style="color: #fff; font-size: 0.75rem;">19.076090, 72.877426</div>
+          </div>
+        </div>
+
+        <!-- Dispatch Status Logs -->
+        <div style="background: var(--bg-deep); padding: 12px; border-radius: 6px; border: 1px solid var(--border-subtle); font-size: 0.8rem; margin-bottom: 14px;">
+          <div style="color: var(--neon-cyan); font-weight: bold; margin-bottom: 6px; font-family: var(--font-copperplate);">DISPATCH REPORT STATUS:</div>
+          <div id="emb-email-status" style="color: #38bdf8; margin-bottom: 4px;">📧 Gmail: Transmitting report to sahilpoojari069@gmail.com...</div>
+          <div id="emb-os-status" style="color: #4ade80;">🖥️ Laptop Message Box: Active & Sounding Alarm</div>
+        </div>
+
+        <!-- Quick Action Buttons -->
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+          <a id="emb-gmail-btn" href="#" target="_blank" class="btn-action" style="background: #1e3a8a; border-color: #3b82f6; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 6px;">
+            <span>📧</span> OPEN IN GMAIL CLIENT
+          </a>
+          <a id="emb-whatsapp-btn" href="#" target="_blank" class="btn-action btn-success" style="text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 6px;">
+            <span>💬</span> WHATSAPP / SMS
+          </a>
+          <a id="emb-maps-btn" href="#" target="_blank" class="btn-action" style="text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 6px;">
+            <span>📍</span> VIEW MAP
+          </a>
+          <button class="btn-action btn-danger" onclick="closeEmergencyMessageBox()">ACKNOWLEDGE & SILENCE</button>
+        </div>
       </div>
     </div>
   </div>
