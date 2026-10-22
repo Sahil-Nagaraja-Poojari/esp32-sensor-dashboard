@@ -351,6 +351,8 @@
     }
 
     /* CARD SPANS */
+    .col-2 { grid-column: span 2; }
+    .col-3 { grid-column: span 3; }
     .col-4 { grid-column: span 4; }
     .col-5 { grid-column: span 5; }
     .col-6 { grid-column: span 6; }
@@ -627,15 +629,15 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 16px;
+      gap: 12px;
       flex: 1;
       text-align: center;
-      padding: 10px;
+      padding: 12px 0;
     }
 
     .sos-button-beacon {
-      width: 140px;
-      height: 140px;
+      width: 112px;
+      height: 112px;
       border-radius: 50%;
       background: radial-gradient(circle, #b91c1c 0%, #450a0a 100%);
       border: 4px solid #ef4444;
@@ -647,6 +649,7 @@
       cursor: pointer;
       user-select: none;
       transition: all 0.2s ease;
+      margin: 6px auto;
     }
 
     .sos-button-beacon:hover {
@@ -665,7 +668,7 @@
     }
 
     .sos-text {
-      font-size: 2.2rem;
+      font-size: 1.9rem;
       color: #fff;
       font-weight: 900;
       letter-spacing: 0.1em;
@@ -673,16 +676,18 @@
     }
 
     .sos-subtext {
-      font-size: 0.7rem;
+      font-size: 0.65rem;
       color: #fca5a5;
       font-family: var(--font-copperplate);
       letter-spacing: 0.15em;
     }
 
     .sos-controls {
-      display: flex;
-      gap: 10px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
       width: 100%;
+      margin-top: auto;
     }
 
     /* =========================================================================
@@ -775,23 +780,24 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 14px;
+      gap: 10px;
       flex: 1;
       text-align: center;
-      padding: 10px;
+      padding: 12px 0;
     }
 
     .buzzer-status-icon {
-      width: 80px;
-      height: 80px;
+      width: 68px;
+      height: 68px;
       border-radius: 50%;
       background: var(--bg-deep);
       border: 2px solid var(--border-accent);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 2.2rem;
+      font-size: 2rem;
       transition: all 0.3s;
+      margin: 4px auto;
     }
 
     .buzzer-status-icon.active {
@@ -803,8 +809,28 @@
     }
 
     .buzzer-status-label {
-      font-size: 1.1rem;
+      font-size: 1.05rem;
       color: #fff;
+      font-weight: 700;
+    }
+
+    .buzzer-triggers {
+      display: flex;
+      gap: 5px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 4px;
+    }
+
+    .trigger-chip {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-subtle);
+      border-radius: 4px;
+      font-size: 0.65rem;
+      padding: 3px 6px;
+      color: var(--text-dim);
+      font-family: var(--font-copperplate);
+      letter-spacing: 0.05em;
     }
 
     /* =========================================================================
@@ -1086,13 +1112,13 @@
 
     /* Responsive Breakpoints */
     @media (max-width: 1200px) {
-      .col-4, .col-5, .col-6, .col-7, .col-8 {
+      .col-2, .col-3, .col-4, .col-5, .col-6, .col-7, .col-8 {
         grid-column: span 6;
       }
     }
 
     @media (max-width: 768px) {
-      .col-4, .col-5, .col-6, .col-7, .col-8 {
+      .col-2, .col-3, .col-4, .col-5, .col-6, .col-7, .col-8 {
         grid-column: span 12;
       }
       .mpu-container {
@@ -1335,13 +1361,13 @@
     </section>
 
     <!-- SENSOR 4: NEO-6M GPS (Leaflet Map & Positioning HUD) -->
-    <section class="card col-7" id="card-gps">
+    <section class="card col-6" id="card-gps">
       <div class="card-header">
         <div class="card-title">
           <span class="tag-num">04</span>
-          <h3>NEO-6M GPS GEO-LOCATION</h3>
+          <h3 style="white-space: nowrap;">NEO-6M GPS GEO-LOCATION</h3>
         </div>
-        <span class="sensor-status-tag" id="gps-status">UART2 [3D FIX - 9 SVs]</span>
+        <span class="sensor-status-tag" id="gps-status">UART2 [3D FIX]</span>
       </div>
 
       <div class="gps-hud-container">
@@ -1371,11 +1397,11 @@
     </section>
 
     <!-- SENSOR 5: SOS PANIC EMERGENCY BUTTON -->
-    <section class="card col-2" id="card-sos" style="justify-content: space-between;">
+    <section class="card col-3" id="card-sos" style="justify-content: space-between;">
       <div class="card-header">
         <div class="card-title">
           <span class="tag-num">05</span>
-          <h3>SOS BUTTON</h3>
+          <h3 style="white-space: nowrap;">SOS BUTTON</h3>
         </div>
         <span class="sensor-status-tag" id="sos-status">GPIO 15</span>
       </div>
@@ -1398,7 +1424,7 @@
       <div class="card-header">
         <div class="card-title">
           <span class="tag-num">07</span>
-          <h3>AUDIBLE BUZZER</h3>
+          <h3 style="white-space: nowrap;">AUDIBLE BUZZER</h3>
         </div>
         <span class="sensor-status-tag" id="buzzer-status">GPIO 18</span>
       </div>
@@ -1406,7 +1432,11 @@
       <div class="buzzer-container">
         <div class="buzzer-status-icon" id="buzzer-icon">📢</div>
         <div class="buzzer-status-label copperplate" id="buzzer-label">SILENT (READY)</div>
-        <p style="font-size: 0.75rem; color: var(--text-dim);">AUTOMATIC TRIP ON: GAS SPIKE, FALL IMPACT, SOS TRIGGER</p>
+        <div class="buzzer-triggers">
+          <span class="trigger-chip">GAS SPIKE</span>
+          <span class="trigger-chip">FALL IMPACT</span>
+          <span class="trigger-chip">SOS PANIC</span>
+        </div>
       </div>
 
       <div class="sos-controls">
@@ -1600,7 +1630,8 @@
         attributionControl: false
       }).setView([state.gps.lat, state.gps.lon], 16);
 
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        subdomains: 'abcd',
         maxZoom: 19
       }).addTo(map);
 
