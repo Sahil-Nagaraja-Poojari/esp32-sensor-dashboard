@@ -13,6 +13,9 @@
   <!-- Leaflet.js CSS for GPS Geo-Tracking -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
+  <!-- EmailJS SDK for Client-Side Gmail Dispatch -->
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+
   <style>
     :root {
       /* Primary Typography: Copperplate Gothic Bold with elegant fallbacks */
@@ -1190,6 +1193,11 @@
         💾 FLASH AUDIT LOGS
       </button>
 
+      <!-- External Dispatch Settings Button (Gmail / OS / Mobile) -->
+      <button class="btn-header" onclick="openDispatchModal()" style="border-color: var(--neon-cyan); color: var(--neon-cyan);">
+        📩 DISPATCH ALERTS (GMAIL / OS / SMS)
+      </button>
+
       <!-- Notification Center Toggle -->
       <button class="btn-header" onclick="toggleNotificationDrawer()">
         🔔 ALERTS (<span id="notif-count">0</span>)
@@ -1503,6 +1511,103 @@
         <button class="btn-action" onclick="fetchFlashLogs()">REFRESH LOGS</button>
         <button class="btn-action btn-danger" onclick="clearFlashLogs()">CLEAR FLASH STORAGE</button>
         <button class="btn-action" onclick="closeFlashLogsModal()">CLOSE</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Emergency Dispatch & Notifications Modal (Gmail / OS Message Box / Mobile) -->
+  <div class="modal-overlay" id="dispatch-modal">
+    <div class="modal-card" style="max-width: 780px;">
+      <div class="modal-header">
+        <h3 class="copperplate">EMERGENCY ALERT DISPATCH (GMAIL / OS / MOBILE)</h3>
+        <button class="drawer-close" onclick="closeDispatchModal()">&times;</button>
+      </div>
+      <div class="modal-body" style="display: flex; flex-direction: column; gap: 16px;">
+        
+        <!-- Section 1: Laptop & Mobile Desktop Notification Box -->
+        <div style="background: var(--bg-deep); border: 1px solid var(--border-accent); border-radius: 8px; padding: 14px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="font-size: 1.3rem;">🖥️</span>
+              <strong class="copperplate" style="color: #fff; font-size: 0.9rem;">LAPTOP & MOBILE OS NOTIFICATION BOX</strong>
+            </div>
+            <span id="os-perm-badge" class="sensor-status-tag">STATUS: UNKNOWN</span>
+          </div>
+          <p style="font-size: 0.78rem; color: var(--text-dim); margin-bottom: 10px;">
+            Pops up native alert dialogs directly in Windows Action Center / macOS / Android notification tray, even if the browser tab is minimized or in the background!
+          </p>
+          <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <button class="btn-action btn-success" onclick="requestOSNotificationPermission()">ENABLE SYSTEM NOTIFICATIONS</button>
+            <button class="btn-action" onclick="testOSNotification()">TEST NOTIFICATION BOX</button>
+          </div>
+        </div>
+
+        <!-- Section 2: Gmail Inbox Alert -->
+        <div style="background: var(--bg-deep); border: 1px solid var(--border-accent); border-radius: 8px; padding: 14px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="font-size: 1.3rem;">📧</span>
+              <strong class="copperplate" style="color: #fff; font-size: 0.9rem;">GMAIL INBOX DISPATCH (EMAILJS / WEBHOOK)</strong>
+            </div>
+            <label style="display: flex; align-items: center; gap: 6px; font-size: 0.8rem; cursor: pointer; color: var(--neon-cyan);">
+              <input type="checkbox" id="email-dispatch-enable" checked /> ENABLE GMAIL
+            </label>
+          </div>
+          <p style="font-size: 0.78rem; color: var(--text-dim); margin-bottom: 10px;">
+            Dispatches automated incident reports with GPS coordinates, gas PPM, and heart rate directly to your Gmail inbox.
+          </p>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+            <div>
+              <label style="font-size: 0.7rem; color: var(--text-dim);">RECIPIENT GMAIL:</label>
+              <input type="email" id="email-recipient" value="sahilpoojari069@gmail.com" style="width: 100%; background: var(--bg-panel); color: #fff; border: 1px solid var(--border-subtle); padding: 6px 10px; border-radius: 4px; font-family: var(--font-mono); font-size: 0.8rem;" />
+            </div>
+            <div>
+              <label style="font-size: 0.7rem; color: var(--text-dim);">EMAILJS SERVICE ID / WEBHOOK:</label>
+              <input type="text" id="email-service-id" placeholder="service_esp32 (or webhook URL)" value="" style="width: 100%; background: var(--bg-panel); color: #fff; border: 1px solid var(--border-subtle); padding: 6px 10px; border-radius: 4px; font-family: var(--font-mono); font-size: 0.8rem;" />
+            </div>
+            <div>
+              <label style="font-size: 0.7rem; color: var(--text-dim);">EMAILJS TEMPLATE ID:</label>
+              <input type="text" id="email-template-id" placeholder="template_emergency" value="" style="width: 100%; background: var(--bg-panel); color: #fff; border: 1px solid var(--border-subtle); padding: 6px 10px; border-radius: 4px; font-family: var(--font-mono); font-size: 0.8rem;" />
+            </div>
+            <div>
+              <label style="font-size: 0.7rem; color: var(--text-dim);">EMAILJS PUBLIC KEY:</label>
+              <input type="text" id="email-public-key" placeholder="Public Key (User ID)" value="" style="width: 100%; background: var(--bg-panel); color: #fff; border: 1px solid var(--border-subtle); padding: 6px 10px; border-radius: 4px; font-family: var(--font-mono); font-size: 0.8rem;" />
+            </div>
+          </div>
+          <button class="btn-action" onclick="sendTestGmail()">SEND TEST GMAIL ALERT</button>
+        </div>
+
+        <!-- Section 3: Mobile Message Box (Telegram / WhatsApp Webhook) -->
+        <div style="background: var(--bg-deep); border: 1px solid var(--border-accent); border-radius: 8px; padding: 14px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="font-size: 1.3rem;">📱</span>
+              <strong class="copperplate" style="color: #fff; font-size: 0.9rem;">MOBILE MESSAGE BOX (TELEGRAM BOT PUSH)</strong>
+            </div>
+            <label style="display: flex; align-items: center; gap: 6px; font-size: 0.8rem; cursor: pointer; color: var(--neon-cyan);">
+              <input type="checkbox" id="mobile-dispatch-enable" checked /> ENABLE MOBILE PUSH
+            </label>
+          </div>
+          <p style="font-size: 0.78rem; color: var(--text-dim); margin-bottom: 10px;">
+            Sends instant push notifications straight to your mobile phone message box via the Telegram Bot API (100% free, zero server required!).
+          </p>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+            <div>
+              <label style="font-size: 0.7rem; color: var(--text-dim);">TELEGRAM BOT TOKEN:</label>
+              <input type="text" id="tg-bot-token" placeholder="bot123456:ABC-DEF..." style="width: 100%; background: var(--bg-panel); color: #fff; border: 1px solid var(--border-subtle); padding: 6px 10px; border-radius: 4px; font-family: var(--font-mono); font-size: 0.8rem;" />
+            </div>
+            <div>
+              <label style="font-size: 0.7rem; color: var(--text-dim);">TELEGRAM CHAT ID:</label>
+              <input type="text" id="tg-chat-id" placeholder="Your Chat ID e.g. 987654321" style="width: 100%; background: var(--bg-panel); color: #fff; border: 1px solid var(--border-subtle); padding: 6px 10px; border-radius: 4px; font-family: var(--font-mono); font-size: 0.8rem;" />
+            </div>
+          </div>
+          <button class="btn-action" onclick="sendTestMobileMessage()">SEND TEST MOBILE PUSH</button>
+        </div>
+
+      </div>
+      <div style="padding: 12px 20px; border-top: 1px solid var(--border-subtle); display: flex; justify-content: flex-end; gap: 10px;">
+        <button class="btn-action btn-success" onclick="saveDispatchSettings()">SAVE DISPATCH SETTINGS</button>
+        <button class="btn-action" onclick="closeDispatchModal()">CLOSE</button>
       </div>
     </div>
   </div>
@@ -1892,14 +1997,17 @@
         emergencyBanner.style.display = 'block';
         bannerText.textContent = 'WORKER EMERGENCY SOS DISTRESS SIGNAL ACTIVE!';
         startAcousticAlarm();
+        triggerEmergencyDispatch('SOS_EMERGENCY', 'Worker triggered manual SOS distress panic button!');
       } else if (state.gas.ppm > 800) {
         emergencyBanner.style.display = 'block';
         bannerText.textContent = 'TOXIC GAS LEAK DETECTED (EXCEEDED 800 PPM)!';
         startAcousticAlarm();
+        triggerEmergencyDispatch('GAS_LEAK_HAZARD', `Toxic gas concentration breached safety limit: ${Math.round(state.gas.ppm)} PPM!`);
       } else if (state.mpu.fall) {
         emergencyBanner.style.display = 'block';
         bannerText.textContent = 'HIGH-G IMPACT / WORKER FALL REGISTERED!';
         startAcousticAlarm();
+        triggerEmergencyDispatch('FALL_IMPACT', `Severe impact or fall shockwave registered: ${state.mpu.g_force.toFixed(2)} G!`);
       } else if (state.buzzer.active) {
         startAcousticAlarm();
       } else {
@@ -2344,10 +2452,271 @@
     }
 
     /* =========================================================================
+       EMERGENCY DISPATCH ENGINE (GMAIL / OS NOTIFICATION BOX / MOBILE TELEGRAM)
+       ========================================================================= */
+    const dispatchConfig = {
+      os_enabled: true,
+      email_enabled: true,
+      email_recipient: 'sahilpoojari069@gmail.com',
+      email_service_id: '',
+      email_template_id: '',
+      email_public_key: '',
+      mobile_enabled: true,
+      tg_bot_token: '',
+      tg_chat_id: ''
+    };
+
+    const lastDispatchTimes = {};
+
+    function loadDispatchSettings() {
+      try {
+        const saved = localStorage.getItem('esp32_dispatch_config');
+        if (saved) {
+          Object.assign(dispatchConfig, JSON.parse(saved));
+        }
+      } catch (e) {}
+
+      const elRecip = document.getElementById('email-recipient');
+      if (elRecip) elRecip.value = dispatchConfig.email_recipient || 'sahilpoojari069@gmail.com';
+
+      const elSvc = document.getElementById('email-service-id');
+      if (elSvc) elSvc.value = dispatchConfig.email_service_id || '';
+
+      const elTpl = document.getElementById('email-template-id');
+      if (elTpl) elTpl.value = dispatchConfig.email_template_id || '';
+
+      const elKey = document.getElementById('email-public-key');
+      if (elKey) elKey.value = dispatchConfig.email_public_key || '';
+
+      const elMailEn = document.getElementById('email-dispatch-enable');
+      if (elMailEn) elMailEn.checked = dispatchConfig.email_enabled;
+
+      const elTgTok = document.getElementById('tg-bot-token');
+      if (elTgTok) elTgTok.value = dispatchConfig.tg_bot_token || '';
+
+      const elTgChat = document.getElementById('tg-chat-id');
+      if (elTgChat) elTgChat.value = dispatchConfig.tg_chat_id || '';
+
+      const elMobEn = document.getElementById('mobile-dispatch-enable');
+      if (elMobEn) elMobEn.checked = dispatchConfig.mobile_enabled;
+
+      updateOSNotificationBadge();
+
+      if (dispatchConfig.email_public_key && window.emailjs) {
+        try {
+          emailjs.init({ publicKey: dispatchConfig.email_public_key });
+        } catch (e) {}
+      }
+    }
+
+    function saveDispatchSettings() {
+      dispatchConfig.email_recipient = document.getElementById('email-recipient').value.trim();
+      dispatchConfig.email_service_id = document.getElementById('email-service-id').value.trim();
+      dispatchConfig.email_template_id = document.getElementById('email-template-id').value.trim();
+      dispatchConfig.email_public_key = document.getElementById('email-public-key').value.trim();
+      dispatchConfig.email_enabled = document.getElementById('email-dispatch-enable').checked;
+
+      dispatchConfig.tg_bot_token = document.getElementById('tg-bot-token').value.trim();
+      dispatchConfig.tg_chat_id = document.getElementById('tg-chat-id').value.trim();
+      dispatchConfig.mobile_enabled = document.getElementById('mobile-dispatch-enable').checked;
+
+      localStorage.setItem('esp32_dispatch_config', JSON.stringify(dispatchConfig));
+
+      if (dispatchConfig.email_public_key && window.emailjs) {
+        try {
+          emailjs.init({ publicKey: dispatchConfig.email_public_key });
+        } catch (e) {}
+      }
+
+      showToast('Dispatch settings saved to browser memory', 'info');
+      closeDispatchModal();
+    }
+
+    function openDispatchModal() {
+      loadDispatchSettings();
+      document.getElementById('dispatch-modal').classList.add('open');
+    }
+
+    function closeDispatchModal() {
+      document.getElementById('dispatch-modal').classList.remove('open');
+    }
+
+    function updateOSNotificationBadge() {
+      const badge = document.getElementById('os-perm-badge');
+      if (!badge) return;
+      if (!('Notification' in window)) {
+        badge.textContent = 'NOT SUPPORTED';
+        badge.className = 'sensor-status-tag offline';
+      } else if (Notification.permission === 'granted') {
+        badge.textContent = 'PERMISSION: GRANTED';
+        badge.className = 'sensor-status-tag';
+      } else if (Notification.permission === 'denied') {
+        badge.textContent = 'PERMISSION: BLOCKED';
+        badge.className = 'sensor-status-tag offline';
+      } else {
+        badge.textContent = 'PERMISSION: DEFAULT';
+        badge.className = 'sensor-status-tag';
+      }
+    }
+
+    function requestOSNotificationPermission() {
+      if (!('Notification' in window)) {
+        alert('Desktop notifications are not supported on this browser.');
+        return;
+      }
+      Notification.requestPermission().then(permission => {
+        updateOSNotificationBadge();
+        if (permission === 'granted') {
+          showOSNotification('ESP32 SAFETY SYSTEM', 'Desktop & Mobile OS message box verified active!');
+          showToast('Desktop notification permission granted', 'info');
+        } else {
+          showToast('Notification permission denied', 'danger');
+        }
+      });
+    }
+
+    function testOSNotification() {
+      if (!('Notification' in window)) {
+        alert('Desktop notifications not supported on this device/browser.');
+        return;
+      }
+      if (Notification.permission !== 'granted') {
+        requestOSNotificationPermission();
+        return;
+      }
+      showOSNotification('🚨 [TEST ALERT] ESP32 COMMAND HUB', 'Emergency desktop message box test successful! Telemetry synchronized.');
+      showToast('Test notification sent to your OS message box', 'info');
+    }
+
+    function showOSNotification(title, body) {
+      if (!('Notification' in window) || Notification.permission !== 'granted') return;
+      try {
+        const notif = new Notification(title, {
+          body: body,
+          icon: 'https://cdn-icons-png.flaticon.com/512/564/564619.png',
+          requireInteraction: true,
+          tag: 'esp32-alert'
+        });
+        notif.onclick = function() {
+          window.focus();
+          notif.close();
+        };
+      } catch (e) {
+        console.warn('OS Notification trigger error:', e);
+      }
+    }
+
+    async function sendGmailAlert(eventType, incidentText) {
+      const recipient = dispatchConfig.email_recipient || 'sahilpoojari069@gmail.com';
+      const mapsUrl = `https://www.google.com/maps?q=${state.gps.lat.toFixed(6)},${state.gps.lon.toFixed(6)}`;
+      const payload = {
+        to_email: recipient,
+        event_type: eventType,
+        incident_details: incidentText,
+        gas_ppm: state.gas.ppm.toFixed(1),
+        heart_rate: state.vitals.bpm,
+        spo2: state.vitals.spo2.toFixed(1),
+        g_force: state.mpu.g_force.toFixed(2),
+        gps_location: `${state.gps.lat.toFixed(6)}, ${state.gps.lon.toFixed(6)}`,
+        gps_map_link: mapsUrl,
+        timestamp: new Date().toLocaleString()
+      };
+
+      if (dispatchConfig.email_service_id && dispatchConfig.email_service_id.startsWith('http')) {
+        try {
+          await fetch(dispatchConfig.email_service_id, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+          showToast(`Emergency alert emailed to ${recipient}`, 'info');
+          return;
+        } catch (e) {}
+      }
+
+      if (window.emailjs && dispatchConfig.email_service_id && dispatchConfig.email_template_id) {
+        try {
+          await emailjs.send(dispatchConfig.email_service_id, dispatchConfig.email_template_id, payload);
+          showToast(`Gmail incident report dispatched to ${recipient}`, 'info');
+          return;
+        } catch (err) {
+          console.warn('EmailJS error:', err);
+        }
+      }
+
+      console.log('[GMAIL DISPATCH]', payload);
+      showToast(`Simulated Gmail dispatch to ${recipient}`, 'info');
+    }
+
+    async function sendTelegramAlert(eventType, incidentText) {
+      if (!dispatchConfig.tg_bot_token || !dispatchConfig.tg_chat_id) {
+        showToast('Mobile Telegram bot token / chat ID not set (Simulated)', 'info');
+        return;
+      }
+
+      const mapsUrl = `https://www.google.com/maps?q=${state.gps.lat.toFixed(6)},${state.gps.lon.toFixed(6)}`;
+      const text = `🚨 <b>ESP32 INDUSTRIAL SAFETY ALERT</b> 🚨\n\n` +
+                   `⚠️ <b>Event:</b> ${eventType}\n` +
+                   `📋 <b>Details:</b> ${incidentText}\n` +
+                   `📍 <b>GPS:</b> <a href="${mapsUrl}">${state.gps.lat.toFixed(6)}, ${state.gps.lon.toFixed(6)}</a>\n` +
+                   `💨 <b>Gas PPM:</b> ${state.gas.ppm.toFixed(1)}\n` +
+                   `❤️ <b>Heart Rate:</b> ${state.vitals.bpm} BPM | <b>SpO2:</b> ${state.vitals.spo2.toFixed(1)}%\n` +
+                   `🕒 <b>Time:</b> ${new Date().toLocaleTimeString()}`;
+
+      try {
+        const url = `https://api.telegram.org/bot${dispatchConfig.tg_bot_token}/sendMessage`;
+        await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            chat_id: dispatchConfig.tg_chat_id,
+            text: text,
+            parse_mode: 'HTML'
+          })
+        });
+        showToast('Push alert sent to mobile message box!', 'info');
+      } catch (e) {
+        console.warn('Telegram API Error:', e);
+      }
+    }
+
+    async function sendTestGmail() {
+      const email = document.getElementById('email-recipient').value.trim() || 'sahilpoojari069@gmail.com';
+      await sendGmailAlert('TEST_DRILL', 'Operator initiated manual test alert from command console');
+      showToast(`Test incident report generated for ${email}`, 'info');
+    }
+
+    async function sendTestMobileMessage() {
+      await sendTelegramAlert('TEST_DRILL', 'Mobile message box push notification test verified');
+    }
+
+    function triggerEmergencyDispatch(eventType, incidentText) {
+      const now = Date.now();
+      if (lastDispatchTimes[eventType] && (now - lastDispatchTimes[eventType] < 30000)) {
+        return;
+      }
+      lastDispatchTimes[eventType] = now;
+
+      // 1. Laptop / Mobile OS Desktop Message Box
+      showOSNotification(`🚨 CRITICAL SAFETY ALERT: ${eventType}`, `${incidentText}\nGPS: ${state.gps.lat.toFixed(5)}, ${state.gps.lon.toFixed(5)} | Gas: ${Math.round(state.gas.ppm)} PPM`);
+
+      // 2. Gmail Alert
+      if (dispatchConfig.email_enabled) {
+        sendGmailAlert(eventType, incidentText);
+      }
+
+      // 3. Mobile Message Box
+      if (dispatchConfig.mobile_enabled) {
+        sendTelegramAlert(eventType, incidentText);
+      }
+    }
+
+    /* =========================================================================
        INITIALIZATION BOOTSTRAP
        ========================================================================= */
     window.addEventListener('DOMContentLoaded', () => {
       initMap();
+      loadDispatchSettings();
       requestAnimationFrame(drawPPGWaveform);
       setInterval(runSimulationStep, 250); // 4Hz update rate
     });
